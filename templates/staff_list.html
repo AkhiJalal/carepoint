@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Staff{% endblock %}
+{% block page_title %}Staff Management{% endblock %}
+{% block topbar_actions %}
+<a href="/add_staff" class="btn btn-primary btn-sm"><i class="fa fa-user-plus"></i> Add Staff</a>
+{% endblock %}
+{% block content %}
+<div class="pg-hdr fade-up">
+  <div><h2>Staff Members</h2><p>{{ members|length }} staff member{{ 's' if members|length != 1 else '' }}</p></div>
+</div>
+<div class="table-card fade-up d1">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Name</th><th>Role</th><th>Specialization</th><th>Username</th><th>Contact</th><th>Actions</th></tr></thead>
+      <tbody>
+      {% for m in members %}
+      <tr>
+        <td><div class="av-row">
+          <div class="av {% if m.role=='doctor' %}av-green{% elif m.role=='nurse' %}av-purple{% else %}av-blue{% endif %}">{{ m.name[0].upper() }}</div>
+          <span class="td-bold">{{ m.name }}</span>
+        </div></td>
+        <td>
+          {% if m.role=='doctor' %}<span class="badge badge-green">Doctor</span>
+          {% elif m.role=='nurse' %}<span class="badge badge-purple">Nurse</span>
+          {% else %}<span class="badge badge-blue">{{ m.role.title() }}</span>{% endif %}
+        </td>
+        <td style="font-size:.84rem;color:var(--text2)">{{ m.specialization or '—' }}</td>
+        <td class="td-mono" style="font-size:.8rem">{{ m.username }}</td>
+        <td style="font-size:.82rem">{{ m.contact or '—' }}</td>
+        <td>
+          <a href="/delete_staff/{{ m.id }}" class="btn btn-danger btn-icon btn-sm" onclick="return confirm('Remove {{ m.name }}?')" title="Remove"><i class="fa fa-trash"></i></a>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6"><div class="empty"><div class="empty-icon"><i class="fa fa-users"></i></div><h3>No staff</h3><p>Add staff members to get started</p></div></td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

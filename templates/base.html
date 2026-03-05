@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}CarePoint{% endblock %} — Hospital Management</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<!-- Flash Messages -->
+<div class="flash-wrap" id="flashWrap">
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for cat, msg in messages %}
+  <div class="flash flash-{{ cat }}">
+    <i class="fa fa-{% if cat == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+    {{ msg }}
+  </div>
+  {% endfor %}
+{% endwith %}
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-row">
+        <div class="logo-icon"><i class="fa fa-heartbeat"></i></div>
+        <div>
+          <div class="logo-name">Care<span>Point</span></div>
+          <div class="logo-tag">Hospital System</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section">Overview</div>
+      <a href="/dashboard" class="nav-link {% if request.path == '/dashboard' %}active{% endif %}">
+        <i class="fa fa-th-large"></i><span>Dashboard</span>
+      </a>
+
+      <div class="nav-section">Patients</div>
+      <a href="/patients" class="nav-link {% if request.path == '/patients' %}active{% endif %}">
+        <i class="fa fa-users"></i><span>All Patients</span>
+      </a>
+      <a href="/add_patient" class="nav-link {% if request.path == '/add_patient' %}active{% endif %}">
+        <i class="fa fa-user-plus"></i><span>Register Patient</span>
+      </a>
+
+      <div class="nav-section">Clinical</div>
+      <a href="/appointments" class="nav-link {% if '/appointments' in request.path %}active{% endif %}">
+        <i class="fa fa-calendar-check"></i><span>Appointments</span>
+      </a>
+      <a href="/availability" class="nav-link {% if '/availability' in request.path %}active{% endif %}">
+        <i class="fa fa-clock"></i><span>Availability</span>
+      </a>
+
+      <div class="nav-section">Admin</div>
+      <a href="/staff" class="nav-link {% if request.path == '/staff' %}active{% endif %}">
+        <i class="fa fa-user-md"></i><span>Staff</span>
+      </a>
+      <a href="/pharmacy" class="nav-link {% if '/pharmacy' in request.path %}active{% endif %}">
+        <i class="fa fa-pills"></i><span>Pharmacy</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      {% if staff %}
+      <div class="user-tile">
+        <div class="user-av">{{ staff.name[0].upper() }}</div>
+        <div style="min-width:0;flex:1">
+          <div class="user-name-text truncate">{{ staff.name }}</div>
+          <div class="user-role-text">{{ staff.role }}</div>
+        </div>
+        <a href="/logout" title="Logout" style="color:var(--text3);flex-shrink:0">
+          <i class="fa fa-sign-out-alt"></i>
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main" id="mainContent">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <span class="topbar-title">{% block page_title %}Dashboard{% endblock %}</span>
+      <div class="topbar-actions">
+        {% block topbar_actions %}{% endblock %}
+        <button class="btn btn-glass btn-icon" title="Notifications">
+          <i class="fa fa-bell"></i>
+        </button>
+        <a href="/logout" class="btn btn-glass btn-icon" title="Logout">
+          <i class="fa fa-sign-out-alt"></i>
+        </a>
+      </div>
+    </header>
+
+    <!-- TICKER BAR -->
+    <div class="ticker-bar">
+      <div class="ticker-label"><i class="fa fa-broadcast-tower"></i> Live</div>
+      <div class="ticker-track">
+        <div class="ticker-content" id="tickerContent">
+          <span class="tick-item"><i class="fa fa-heartbeat"></i> CarePoint Hospital Management System</span>
+          <span class="tick-item"><i class="fa fa-user-md"></i> Welcome, {% if staff %}{{ staff.name }}{% else %}Doctor{% endif %}</span>
+          <span class="tick-item"><i class="fa fa-calendar-check"></i> Check today's appointments in the dashboard</span>
+          <span class="tick-item"><i class="fa fa-pills"></i> Pharmacy — track drug inventory and prescriptions</span>
+          <span class="tick-item"><i class="fa fa-users"></i> Register new patients using the sidebar</span>
+          <span class="tick-item"><i class="fa fa-shield-alt"></i> All data securely stored in PostgreSQL</span>
+          <span class="tick-item"><i class="fa fa-heartbeat"></i> CarePoint — Better Care, Better Health</span>
+          <span class="tick-item"><i class="fa fa-star"></i> Patient portal available at /patient/login</span>
+          <!-- duplicated for seamless loop -->
+          <span class="tick-item"><i class="fa fa-heartbeat"></i> CarePoint Hospital Management System</span>
+          <span class="tick-item"><i class="fa fa-user-md"></i> Welcome, {% if staff %}{{ staff.name }}{% else %}Doctor{% endif %}</span>
+          <span class="tick-item"><i class="fa fa-calendar-check"></i> Check today's appointments in the dashboard</span>
+          <span class="tick-item"><i class="fa fa-pills"></i> Pharmacy — track drug inventory and prescriptions</span>
+          <span class="tick-item"><i class="fa fa-users"></i> Register new patients using the sidebar</span>
+          <span class="tick-item"><i class="fa fa-shield-alt"></i> All data securely stored in PostgreSQL</span>
+        </div>
+      </div>
+    </div>
+
+    <main class="page">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+
+<script>
+// Auto-dismiss flashes
+setTimeout(() => {
+  document.querySelectorAll('.flash').forEach(f => {
+    f.style.transition = 'all .4s ease';
+    f.style.opacity = '0';
+    f.style.transform = 'translateX(20px)';
+    setTimeout(() => f.remove(), 400);
+  });
+}, 4000);
+
+// Dropdown — fixed positioning so it never clips
+document.querySelectorAll('[data-dd-toggle]').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    const menuId = btn.dataset.ddToggle;
+    const menu = document.getElementById(menuId);
+    const isOpen = menu.classList.contains('show');
+    // close all others
+    document.querySelectorAll('.dd-menu.show').forEach(m => m.classList.remove('show'));
+    if (!isOpen) {
+      menu.classList.add('show');
+      const rect = btn.getBoundingClientRect();
+      // position fixed relative to viewport
+      menu.style.position = 'fixed';
+      menu.style.top = (rect.bottom + 4) + 'px';
+      // try right-aligned first
+      const menuW = 180;
+      if (rect.right - menuW < 0) {
+        menu.style.left = rect.left + 'px';
+        menu.style.right = 'auto';
+      } else {
+        menu.style.right = (window.innerWidth - rect.right) + 'px';
+        menu.style.left = 'auto';
+      }
+    }
+  });
+});
+document.addEventListener('click', () => {
+  document.querySelectorAll('.dd-menu.show').forEach(m => m.classList.remove('show'));
+});
+
+// Modal helpers
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+});
+
+// Ripple on buttons
+document.querySelectorAll('.btn').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    const r = document.createElement('span');
+    r.classList.add('ripple');
+    const rect = this.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
+    this.appendChild(r);
+    setTimeout(() => r.remove(), 600);
+  });
+});
+
+// Scroll reveal
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

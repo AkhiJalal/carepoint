@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Availability{% endblock %}
+{% block page_title %}Availability{% endblock %}
+{% block topbar_actions %}
+<button class="btn btn-primary btn-sm" onclick="openModal('addSlotModal')"><i class="fa fa-plus"></i> Add Slot</button>
+{% endblock %}
+{% block content %}
+<div class="pg-hdr fade-up"><div><h2>Staff Availability</h2><p>Manage working hours and schedules</p></div></div>
+<div class="table-card fade-up d1">
+  <div class="table-wrap"><table>
+    <thead><tr><th>Staff</th><th>Role</th><th>Day</th><th>Start</th><th>End</th><th>Actions</th></tr></thead>
+    <tbody>
+    {% for s in slots %}
+    <tr>
+      <td class="td-bold">{{ s.name }}</td>
+      <td>{% if s.role=='doctor' %}<span class="badge badge-green">Doctor</span>{% else %}<span class="badge badge-purple">Nurse</span>{% endif %}</td>
+      <td><span class="badge badge-blue">{{ s.day }}</span></td>
+      <td style="color:var(--blue-bright);font-size:.84rem">{{ s.start_time }}</td>
+      <td style="font-size:.84rem">{{ s.end_time }}</td>
+      <td><a href="/delete_availability/{{ s.id }}" class="btn btn-danger btn-icon btn-sm" onclick="return confirm('Remove?')"><i class="fa fa-trash"></i></a></td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6"><div class="empty"><div class="empty-icon"><i class="fa fa-clock"></i></div><h3>No slots</h3><p>Add availability slots</p></div></td></tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+</div>
+
+<div class="modal-overlay" id="addSlotModal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <span class="modal-ttl"><i class="fa fa-clock" style="color:var(--blue-bright);margin-right:.5rem"></i> Add Availability Slot</span>
+      <button class="modal-x" onclick="closeModal('addSlotModal')"><i class="fa fa-times"></i></button>
+    </div>
+    <form method="POST" action="/add_availability">
+      <div class="form-group">
+        <label class="form-label">Staff Member *</label>
+        <select class="form-control" name="staff_id" required>
+          <option value="">Select staff</option>
+          {% for m in members %}<option value="{{ m.id }}">{{ m.name }} ({{ m.role }})</option>{% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Day *</label>
+        <select class="form-control" name="day" required>
+          {% for d in ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'] %}
+          <option>{{ d }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group"><label class="form-label">Start Time *</label><input class="form-control" type="time" name="start_time" required></div>
+        <div class="form-group"><label class="form-label">End Time *</label><input class="form-control" type="time" name="end_time" required></div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary"><i class="fa fa-plus"></i> Add Slot</button>
+        <button type="button" class="btn btn-glass" onclick="closeModal('addSlotModal')">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

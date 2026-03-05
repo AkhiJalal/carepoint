@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CarePoint — Modern Hospital Management</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="l-nav">
+  <a href="/" class="l-nav-logo">
+    <div class="logo-icon"><i class="fa fa-heartbeat"></i></div>
+    Care<span style="color:var(--blue-bright)">Point</span>
+  </a>
+  <ul class="l-nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#about">About</a></li>
+  </ul>
+  <a href="/staff/login" class="btn btn-glass btn-sm">Staff Login</a>
+  <a href="/patient/login" class="btn btn-primary btn-sm">Patient Portal</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div>
+    <div class="hero-badge"><i class="fa fa-shield-alt"></i> Trusted Healthcare Platform</div>
+    <h1>The <em>Smarter</em> Way to<br>Manage Your Hospital</h1>
+    <p class="hero-sub">Complete patient management, appointments, pharmacy, and clinical records — all in one elegant system.</p>
+    <div class="hero-btns">
+      <a href="/staff/login" class="btn btn-primary btn-lg">
+        <i class="fa fa-sign-in-alt"></i> Staff Login
+      </a>
+      <a href="/patient/login" class="btn btn-glass btn-lg">
+        <i class="fa fa-user"></i> Patient Portal
+      </a>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <span>Scroll to explore</span>
+    <i class="fa fa-chevron-down"></i>
+  </div>
+</section>
+
+<!-- STATS BAND -->
+<div class="stats-band" id="about">
+  <div class="stats-band-item reveal">
+    <div class="stats-band-num">10K+</div>
+    <div class="stats-band-lbl">Patients Managed</div>
+  </div>
+  <div class="stats-band-item reveal d1">
+    <div class="stats-band-num">50+</div>
+    <div class="stats-band-lbl">Hospitals Using CarePoint</div>
+  </div>
+  <div class="stats-band-item reveal d2">
+    <div class="stats-band-num">99.9%</div>
+    <div class="stats-band-lbl">System Uptime</div>
+  </div>
+  <div class="stats-band-item reveal d3">
+    <div class="stats-band-num">3-Tier</div>
+    <div class="stats-band-lbl">Role-Based Access</div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="section-hdr reveal">
+    <div class="section-label">Features</div>
+    <h2>Everything Your Hospital Needs</h2>
+    <p>From registration to discharge — CarePoint handles it all with a beautiful, intuitive interface.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feat-card reveal">
+      <div class="feat-icon ic-blue"><i class="fa fa-user-plus"></i></div>
+      <div class="feat-title">Smart Patient Registration</div>
+      <div class="feat-desc">Register patients in seconds with auto-generated Hospital IDs, photo capture, and document upload.</div>
+    </div>
+    <div class="feat-card reveal d1">
+      <div class="feat-icon ic-green"><i class="fa fa-calendar-check"></i></div>
+      <div class="feat-title">Appointment Scheduling</div>
+      <div class="feat-desc">Book, reschedule, and track appointments with real-time doctor availability management.</div>
+    </div>
+    <div class="feat-card reveal d2">
+      <div class="feat-icon ic-purple"><i class="fa fa-pills"></i></div>
+      <div class="feat-title">Pharmacy Integration</div>
+      <div class="feat-desc">Seamless drug dispensing with prescription tracking and inventory alerts between wards and pharmacy.</div>
+    </div>
+    <div class="feat-card reveal d3">
+      <div class="feat-icon ic-amber"><i class="fa fa-notes-medical"></i></div>
+      <div class="feat-title">Clinical Records</div>
+      <div class="feat-desc">Full visit history, doctor notes, diagnoses, and prescriptions — all accessible to the right people.</div>
+    </div>
+    <div class="feat-card reveal">
+      <div class="feat-icon ic-teal"><i class="fa fa-mobile-alt"></i></div>
+      <div class="feat-title">Patient Portal</div>
+      <div class="feat-desc">Patients can view their records, appointments, doctor notes, and uploaded documents anytime.</div>
+    </div>
+    <div class="feat-card reveal d1">
+      <div class="feat-icon ic-red"><i class="fa fa-chart-bar"></i></div>
+      <div class="feat-title">Analytics Dashboard</div>
+      <div class="feat-desc">Real-time stats on patient flow, appointment rates, and staff utilization at a glance.</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how">
+  <div class="section-hdr reveal">
+    <div class="section-label">How It Works</div>
+    <h2>Simple. Fast. Reliable.</h2>
+    <p>Three steps to get your hospital running on CarePoint.</p>
+  </div>
+  <div class="steps-grid">
+    <div class="step-card reveal">
+      <div class="step-num">1</div>
+      <h3>Register Patients</h3>
+      <p>Staff registers patients with photo, documents and auto-generates a unique Hospital ID card.</p>
+    </div>
+    <div class="step-card reveal d1">
+      <div class="step-num">2</div>
+      <h3>Schedule & Treat</h3>
+      <p>Book appointments, record visits, add diagnoses, prescriptions and doctor notes.</p>
+    </div>
+    <div class="step-card reveal d2">
+      <div class="step-num">3</div>
+      <h3>Track & Communicate</h3>
+      <p>Pharmacy gets notified, patients check their portal, doctors review history. Everyone in sync.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section" style="text-align:center;padding-bottom:4rem">
+  <div class="reveal" style="background:linear-gradient(135deg,rgba(59,130,246,.1),rgba(59,130,246,.03));border:1px solid var(--border-blue);border-radius:var(--r-2xl);padding:3rem 2rem;max-width:600px;margin:0 auto">
+    <div style="width:56px;height:56px;background:linear-gradient(135deg,var(--blue),var(--blue-glow));border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#fff;margin:0 auto 1.2rem;box-shadow:0 8px 24px rgba(59,130,246,.4)"><i class="fa fa-heartbeat"></i></div>
+    <h2 style="margin-bottom:.6rem">Ready to Get Started?</h2>
+    <p style="margin-bottom:2rem;max-width:360px;margin-left:auto;margin-right:auto">Log in to your dashboard or access the patient portal below.</p>
+    <div style="display:flex;gap:.9rem;justify-content:center;flex-wrap:wrap">
+      <a href="/staff/login" class="btn btn-primary btn-lg"><i class="fa fa-sign-in-alt"></i> Staff Login</a>
+      <a href="/patient/login" class="btn btn-glass btn-lg"><i class="fa fa-user"></i> Patient Portal</a>
+    </div>
+  </div>
+</section>
+
+<footer class="l-footer">
+  © 2026 CarePoint Hospital Management System · Built with care
+</footer>
+
+<script>
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// smooth scroll for nav links
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    document.querySelector(a.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}{{ patient.name }}{% endblock %}
+{% block page_title %}Patient Profile{% endblock %}
+
+{% block topbar_actions %}
+<a href="/edit_patient/{{ patient.id }}" class="btn btn-glass btn-sm"><i class="fa fa-edit"></i> Edit</a>
+<a href="/add_visit/{{ patient.id }}" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i> Add Visit</a>
+{% endblock %}
+
+{% block content %}
+<!-- HERO -->
+<div class="detail-hero fade-up">
+  <div class="detail-av">{{ patient.name[0].upper() }}</div>
+  <div class="detail-info">
+    <h2>{{ patient.name }}</h2>
+    <div class="td-mono" style="color:var(--text3);font-size:.82rem;margin-top:.2rem">{{ patient.hospital_id }}</div>
+    <div class="detail-badges">
+      {% if patient.gender %}<span class="badge badge-blue">{{ patient.gender }}</span>{% endif %}
+      {% if patient.blood_group %}<span class="badge badge-red">{{ patient.blood_group }}</span>{% endif %}
+      {% if patient.age %}<span class="badge badge-gray">{{ patient.age }} yrs</span>{% endif %}
+      {% if patient.allergies %}<span class="badge badge-amber"><i class="fa fa-exclamation-triangle"></i> Allergies</span>{% endif %}
+    </div>
+  </div>
+  <div class="ml-auto" style="display:flex;gap:.5rem;flex-wrap:wrap">
+    <a href="/patients" class="btn btn-glass btn-sm"><i class="fa fa-arrow-left"></i> Back</a>
+  </div>
+</div>
+
+<!-- INFO GRID -->
+<div class="info-grid fade-up d1">
+  <div class="info-item">
+    <div class="info-lbl">Contact</div>
+    <div class="info-val">{{ patient.contact or '—' }}</div>
+  </div>
+  <div class="info-item">
+    <div class="info-lbl">Email</div>
+    <div class="info-val">{{ patient.email or '—' }}</div>
+  </div>
+  <div class="info-item">
+    <div class="info-lbl">Emergency Contact</div>
+    <div class="info-val">{{ patient.emergency_contact or '—' }}</div>
+  </div>
+  <div class="info-item">
+    <div class="info-lbl">Address</div>
+    <div class="info-val">{{ patient.address or '—' }}</div>
+  </div>
+  {% if patient.medical_history %}
+  <div class="info-item" style="grid-column:1/-1">
+    <div class="info-lbl">Medical History</div>
+    <div class="info-val">{{ patient.medical_history }}</div>
+  </div>
+  {% endif %}
+  {% if patient.allergies %}
+  <div class="info-item" style="border-color:rgba(245,158,11,.3)">
+    <div class="info-lbl" style="color:var(--amber)"><i class="fa fa-exclamation-triangle"></i> Allergies</div>
+    <div class="info-val" style="color:#fcd34d">{{ patient.allergies }}</div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- TWO COLUMN -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem" class="fade-up d2">
+
+  <!-- Appointments -->
+  <div class="table-card">
+    <div class="table-top">
+      <span class="table-title"><i class="fa fa-calendar" style="color:var(--green);margin-right:.4rem"></i> Appointments</span>
+    </div>
+    <div class="table-wrap" style="max-height:280px">
+      <table>
+        <thead><tr><th>Date</th><th>Doctor</th><th>Status</th></tr></thead>
+        <tbody>
+        {% for a in appts %}
+        <tr>
+          <td>
+            <div style="font-size:.82rem;color:var(--blue-bright)">{{ a.date }}</div>
+            <div style="font-size:.72rem;color:var(--text3)">{{ a.time }}</div>
+          </td>
+          <td style="font-size:.82rem">{{ a.doctor_name }}</td>
+          <td>
+            {% if a.status=='scheduled' %}<span class="badge badge-blue">Scheduled</span>
+            {% elif a.status=='completed' %}<span class="badge badge-green">Done</span>
+            {% else %}<span class="badge badge-red">{{ a.status }}</span>{% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="3"><div class="empty" style="padding:1.5rem"><p>No appointments</p></div></td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Visits -->
+  <div class="table-card">
+    <div class="table-top">
+      <span class="table-title"><i class="fa fa-notes-medical" style="color:var(--blue-bright);margin-right:.4rem"></i> Visit Records</span>
+    </div>
+    <div class="table-wrap" style="max-height:280px">
+      <table>
+        <thead><tr><th>Date</th><th>Doctor</th><th>Diagnosis</th></tr></thead>
+        <tbody>
+        {% for v in visits %}
+        <tr onclick="openModal('visit-{{ v.id }}')" style="cursor:pointer" title="Click for details">
+          <td style="font-size:.82rem;color:var(--blue-bright)">{{ v.visit_date }}</td>
+          <td style="font-size:.82rem">{{ v.doctor_name }}</td>
+          <td style="font-size:.82rem" class="truncate" style="max-width:120px">{{ v.diagnosis or '—' }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="3"><div class="empty" style="padding:1.5rem"><p>No visits recorded</p></div></td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Visit Detail Modals -->
+{% for v in visits %}
+<div class="modal-overlay" id="visit-{{ v.id }}">
+  <div class="modal">
+    <div class="modal-hdr">
+      <span class="modal-ttl"><i class="fa fa-notes-medical" style="color:var(--blue-bright);margin-right:.5rem"></i> Visit — {{ v.visit_date }}</span>
+      <button class="modal-x" onclick="closeModal('visit-{{ v.id }}')"><i class="fa fa-times"></i></button>
+    </div>
+    <div class="form-group">
+      <div class="form-label">Doctor</div>
+      <div style="color:var(--text1)">{{ v.doctor_name }}</div>
+    </div>
+    {% if v.diagnosis %}
+    <div class="form-group">
+      <div class="form-label">Diagnosis</div>
+      <div style="background:var(--glass);border:1px solid var(--border);border-radius:var(--r-sm);padding:.75rem;color:var(--text1)">{{ v.diagnosis }}</div>
+    </div>
+    {% endif %}
+    {% if v.prescription %}
+    <div class="form-group">
+      <div class="form-label"><i class="fa fa-pills"></i> Prescription</div>
+      <div style="background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);border-radius:var(--r-sm);padding:.75rem;color:#6ee7b7">{{ v.prescription }}</div>
+    </div>
+    {% endif %}
+    {% if v.notes %}
+    <div class="form-group">
+      <div class="form-label">Doctor Notes</div>
+      <div style="background:var(--glass);border:1px solid var(--border);border-radius:var(--r-sm);padding:.75rem;color:var(--text2)">{{ v.notes }}</div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endfor %}
+{% endblock %}

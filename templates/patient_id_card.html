@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Patient ID Card{% endblock %}
+{% block page_title %}Patient ID Card{% endblock %}
+
+{% block content %}
+<div class="id-wrap">
+  <div>
+    <div class="id-card" id="idCard">
+      <!-- CARD HEADER -->
+      <div class="id-card-hdr">
+        <div class="logo-icon"><i class="fa fa-heartbeat"></i></div>
+        <div>
+          <div style="font-size:1.15rem;font-weight:800;color:var(--text1)">Care<span style="color:var(--blue-bright)">Point</span></div>
+          <div style="font-size:.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em">Hospital Management System</div>
+        </div>
+        <div class="ml-auto">
+          <span class="badge badge-blue">Active</span>
+        </div>
+      </div>
+
+      <!-- CARD BODY -->
+      <div class="id-card-body" style="padding:1.75rem">
+        <div class="id-av">{{ patient.name[0].upper() }}</div>
+
+        <div class="id-name">{{ patient.name }}</div>
+        <div style="text-align:center;margin-bottom:1rem">
+          {% if patient.gender == 'Male' %}<span class="badge badge-blue">Male</span>
+          {% elif patient.gender == 'Female' %}<span class="badge badge-purple">Female</span>
+          {% endif %}
+          {% if patient.blood_group %}<span class="badge badge-red">{{ patient.blood_group }}</span>{% endif %}
+        </div>
+
+        <div class="id-num-box">
+          <div class="id-num-lbl">Hospital ID</div>
+          <div class="id-num-val">{{ patient.hospital_id }}</div>
+        </div>
+
+        <div class="id-details">
+          <div class="id-det-item">
+            <div class="id-det-lbl">Age</div>
+            <div class="id-det-val">{{ patient.age or '—' }}</div>
+          </div>
+          <div class="id-det-item">
+            <div class="id-det-lbl">Contact</div>
+            <div class="id-det-val" style="font-size:.78rem">{{ patient.contact or '—' }}</div>
+          </div>
+          <div class="id-det-item">
+            <div class="id-det-lbl">Blood Group</div>
+            <div class="id-det-val">{{ patient.blood_group or '—' }}</div>
+          </div>
+          <div class="id-det-item">
+            <div class="id-det-lbl">Issued</div>
+            <div class="id-det-val" style="font-size:.78rem">{{ patient.created_at.strftime('%Y-%m-%d') if patient.created_at else '2026' }}</div>
+          </div>
+        </div>
+
+        <div class="id-pw-box">
+          <div class="id-pw-lbl"><i class="fa fa-key"></i> Portal Password</div>
+          <div class="id-pw-val">{{ password }}</div>
+          <div class="id-pw-hint">Share this privately with the patient for portal access.</div>
+        </div>
+
+        <div class="id-actions no-print">
+          <button onclick="window.print()" class="btn btn-glass"><i class="fa fa-print"></i> Print</button>
+          <a href="/patients/{{ patient.id }}" class="btn btn-primary"><i class="fa fa-eye"></i> View Profile</a>
+          <a href="/add_patient" class="btn btn-glass"><i class="fa fa-user-plus"></i> New</a>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:1rem">
+      <a href="/patients" class="btn btn-glass btn-sm"><i class="fa fa-arrow-left"></i> Back to Patients</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

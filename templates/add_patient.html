@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block title %}Register Patient{% endblock %}
+{% block page_title %}Register Patient{% endblock %}
+
+{% block content %}
+<div class="form-page fade-up">
+  <div class="pg-hdr">
+    <div><h2>Register New Patient</h2><p>Fill in the patient's details below</p></div>
+    <a href="/patients" class="btn btn-glass btn-sm"><i class="fa fa-arrow-left"></i> Back</a>
+  </div>
+
+  <!-- Camera capture -->
+  <div class="form-card mb-2">
+    <div class="form-section-hdr"><i class="fa fa-camera"></i> Patient Photo</div>
+    <div style="display:flex;align-items:flex-start;gap:1.5rem;flex-wrap:wrap">
+      <div style="flex-shrink:0">
+        <div id="photoPreview" style="width:100px;height:100px;border-radius:var(--r-lg);background:var(--glass);border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:2rem;overflow:hidden">
+          <i class="fa fa-user" id="photoIcon"></i>
+          <img id="photoImg" style="display:none;width:100%;height:100%;object-fit:cover">
+        </div>
+      </div>
+      <div style="flex:1">
+        <button type="button" class="btn btn-glass btn-sm mb-1" onclick="openCamera()">
+          <i class="fa fa-camera"></i> Take Photo
+        </button>
+        <input type="file" id="photoFile" accept="image/*" style="display:none" onchange="handleFilePhoto(this)">
+        <button type="button" class="btn btn-glass btn-sm mb-1" onclick="document.getElementById('photoFile').click()">
+          <i class="fa fa-upload"></i> Upload Photo
+        </button>
+        <p style="font-size:.78rem;color:var(--text3);margin-top:.4rem">Optional — used for identification</p>
+      </div>
+    </div>
+  </div>
+
+  <form method="POST" enctype="multipart/form-data">
+
+    <!-- Basic Info -->
+    <div class="form-card">
+      <div class="form-section-hdr"><i class="fa fa-user"></i> Basic Information</div>
+      <div class="form-grid-2">
+        <div class="form-group" style="grid-column:1/-1">
+          <label class="form-label">Full Name *</label>
+          <input class="form-control" name="name" required placeholder="Patient's full name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Age</label>
+          <input class="form-control" name="age" type="number" min="0" max="150" placeholder="Age in years">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Gender</label>
+          <select class="form-control" name="gender">
+            <option value="">Select gender</option>
+            <option>Male</option><option>Female</option><option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Blood Group</label>
+          <select class="form-control" name="blood_group">
+            <option value="">Select blood group</option>
+            <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+            <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Contact Number</label>
+          <input class="form-control" name="contact" placeholder="+233 XX XXX XXXX">
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact & Address -->
+    <div class="form-card">
+      <div class="form-section-hdr"><i class="fa fa-address-card"></i> Contact Details</div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-control" name="email" type="email" placeholder="patient@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Emergency Contact</label>
+          <input class="form-control" name="emergency_contact" placeholder="+233 XX XXX XXXX">
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label class="form-label">Address</label>
+          <input class="form-control" name="address" placeholder="Home address">
+        </div>
+      </div>
+    </div>
+
+    <!-- Medical -->
+    <div class="form-card">
+      <div class="form-section-hdr"><i class="fa fa-notes-medical"></i> Medical Information</div>
+      <div class="form-group">
+        <label class="form-label">Medical History</label>
+        <textarea class="form-control" name="medical_history" placeholder="Known conditions, previous illnesses, surgeries…"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Allergies</label>
+        <textarea class="form-control" name="allergies" rows="2" placeholder="Drug allergies, food allergies…"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Portal Password <span style="color:var(--text3);font-weight:400;font-size:.75rem">(leave blank to auto-generate)</span></label>
+        <input class="form-control" name="password" placeholder="Auto-generated if empty">
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary"><i class="fa fa-user-plus"></i> Register Patient</button>
+      <a href="/patients" class="btn btn-glass">Cancel</a>
+    </div>
+  </form>
+</div>
+
+<!-- Camera Modal -->
+<div class="modal-overlay" id="cameraModal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <span class="modal-ttl"><i class="fa fa-camera" style="color:var(--blue-bright);margin-right:.5rem"></i> Take Patient Photo</span>
+      <button class="modal-x" onclick="closeCamera()"><i class="fa fa-times"></i></button>
+    </div>
+    <div class="camera-preview">
+      <video id="camVideo" autoplay playsinline></video>
+      <div class="camera-overlay"><div class="camera-frame"></div></div>
+    </div>
+    <div style="display:flex;gap:.75rem;margin-top:1rem">
+      <button class="btn btn-primary w-full" style="justify-content:center" onclick="capturePhoto()">
+        <i class="fa fa-camera"></i> Capture
+      </button>
+      <button class="btn btn-glass w-full" style="justify-content:center" onclick="closeCamera()">
+        Cancel
+      </button>
+    </div>
+    <canvas id="snapCanvas" style="display:none"></canvas>
+  </div>
+</div>
+
+<script>
+let stream = null;
+async function openCamera(){
+  document.getElementById('cameraModal').classList.add('open');
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+    document.getElementById('camVideo').srcObject = stream;
+  } catch(e) {
+    alert('Camera error: ' + e.message + '\n\nPlease allow camera access in your browser settings.');
+  }
+}
+function closeCamera(){
+  if(stream){ stream.getTracks().forEach(t=>t.stop()); stream=null; }
+  document.getElementById('cameraModal').classList.remove('open');
+}
+function capturePhoto(){
+  const v = document.getElementById('camVideo');
+  const c = document.getElementById('snapCanvas');
+  c.width=v.videoWidth; c.height=v.videoHeight;
+  c.getContext('2d').drawImage(v,0,0);
+  const dataUrl = c.toDataURL('image/jpeg');
+  showPhotoPreview(dataUrl);
+  closeCamera();
+}
+function handleFilePhoto(input){
+  if(input.files[0]){
+    const r = new FileReader();
+    r.onload = e => showPhotoPreview(e.target.result);
+    r.readAsDataURL(input.files[0]);
+  }
+}
+function showPhotoPreview(src){
+  document.getElementById('photoIcon').style.display='none';
+  const img = document.getElementById('photoImg');
+  img.src=src; img.style.display='block';
+}
+</script>
+{% endblock %}

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Portal — CarePoint</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+<div class="flash-wrap">
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for cat, msg in messages %}
+  <div class="flash flash-{{ cat }}"><i class="fa fa-check-circle"></i> {{ msg }}</div>
+  {% endfor %}
+{% endwith %}
+</div>
+
+<!-- Topbar -->
+<div class="portal-bar">
+  <div class="logo-icon" style="width:30px;height:30px;font-size:.85rem"><i class="fa fa-heartbeat"></i></div>
+  <span style="font-weight:800;font-size:1rem">Care<span style="color:var(--blue-bright)">Point</span></span>
+  <span class="badge badge-teal ml-auto">Patient Portal</span>
+  <a href="/logout" class="btn btn-glass btn-sm"><i class="fa fa-sign-out-alt"></i> Logout</a>
+</div>
+
+<div class="portal-body">
+
+  <!-- HERO -->
+  <div class="portal-hero fade-up">
+    <div class="detail-av" style="width:60px;height:60px;font-size:1.4rem">{{ patient.name[0].upper() }}</div>
+    <div>
+      <h2 style="font-size:1.3rem">Welcome, {{ patient.name.split()[0] }}</h2>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--text3);margin-top:.2rem">{{ patient.hospital_id }}</div>
+      <div style="display:flex;gap:.4rem;margin-top:.5rem;flex-wrap:wrap">
+        {% if patient.blood_group %}<span class="badge badge-red">{{ patient.blood_group }}</span>{% endif %}
+        {% if patient.gender %}<span class="badge badge-blue">{{ patient.gender }}</span>{% endif %}
+        {% if patient.age %}<span class="badge badge-gray">{{ patient.age }} yrs</span>{% endif %}
+        {% if patient.allergies %}<span class="badge badge-amber"><i class="fa fa-exclamation-triangle"></i> Allergies</span>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- TWO COLUMNS -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem" class="fade-up d1">
+
+    <!-- Appointments -->
+    <div class="table-card">
+      <div class="table-top"><span class="table-title"><i class="fa fa-calendar" style="color:var(--green);margin-right:.4rem"></i> My Appointments</span></div>
+      <div class="table-wrap" style="max-height:280px">
+        <table>
+          <thead><tr><th>Date</th><th>Doctor</th><th>Status</th></tr></thead>
+          <tbody>
+          {% for a in appts %}
+          <tr>
+            <td>
+              <div style="color:var(--blue-bright);font-size:.82rem">{{ a.date }}</div>
+              <div style="color:var(--text3);font-size:.72rem">{{ a.time }}</div>
+            </td>
+            <td style="font-size:.82rem">{{ a.doctor_name }}</td>
+            <td>
+              {% if a.status=='scheduled' %}<span class="badge badge-blue">Scheduled</span>
+              {% elif a.status=='completed' %}<span class="badge badge-green">Done</span>
+              {% else %}<span class="badge badge-red">{{ a.status }}</span>{% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="3"><div class="empty" style="padding:1.5rem"><p>No appointments yet</p></div></td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Visit Records -->
+    <div class="table-card">
+      <div class="table-top"><span class="table-title"><i class="fa fa-notes-medical" style="color:var(--blue-bright);margin-right:.4rem"></i> Visit History</span></div>
+      <div class="table-wrap" style="max-height:280px">
+        <table>
+          <thead><tr><th>Date</th><th>Doctor</th><th>Diagnosis</th></tr></thead>
+          <tbody>
+          {% for v in visits %}
+          <tr onclick="openVisit('v{{ v.id }}')" style="cursor:pointer">
+            <td style="color:var(--blue-bright);font-size:.82rem">{{ v.visit_date }}</td>
+            <td style="font-size:.82rem">{{ v.doctor_name }}</td>
+            <td style="font-size:.8rem;color:var(--text2)" class="truncate">{{ v.diagnosis or 'Click to view' }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="3"><div class="empty" style="padding:1.5rem"><p>No visits recorded</p></div></td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Personal Info -->
+  <div class="glass-card fade-up d2">
+    <div style="font-size:.75rem;font-weight:800;color:var(--blue-bright);text-transform:uppercase;letter-spacing:.1em;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid rgba(59,130,246,.15)">
+      <i class="fa fa-user"></i> Personal Information
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem">
+      <div class="info-item"><div class="info-lbl">Contact</div><div class="info-val">{{ patient.contact or '—' }}</div></div>
+      <div class="info-item"><div class="info-lbl">Email</div><div class="info-val">{{ patient.email or '—' }}</div></div>
+      <div class="info-item"><div class="info-lbl">Emergency</div><div class="info-val">{{ patient.emergency_contact or '—' }}</div></div>
+      <div class="info-item"><div class="info-lbl">Address</div><div class="info-val">{{ patient.address or '—' }}</div></div>
+      {% if patient.medical_history %}
+      <div class="info-item" style="grid-column:1/-1"><div class="info-lbl">Medical History</div><div class="info-val">{{ patient.medical_history }}</div></div>
+      {% endif %}
+      {% if patient.allergies %}
+      <div class="info-item" style="border-color:rgba(245,158,11,.3);grid-column:1/-1">
+        <div class="info-lbl" style="color:var(--amber)"><i class="fa fa-exclamation-triangle"></i> Allergies</div>
+        <div class="info-val" style="color:#fcd34d">{{ patient.allergies }}</div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Visit Modals -->
+{% for v in visits %}
+<div class="modal-overlay" id="v{{ v.id }}" style="display:none;align-items:center;justify-content:center">
+  <div class="modal">
+    <div class="modal-hdr">
+      <span class="modal-ttl"><i class="fa fa-notes-medical" style="color:var(--blue-bright);margin-right:.5rem"></i> Visit — {{ v.visit_date }}</span>
+      <button class="modal-x" onclick="closeVisit('v{{ v.id }}')"><i class="fa fa-times"></i></button>
+    </div>
+    <div class="form-group"><div class="form-label">Doctor</div><div style="color:var(--text1)">{{ v.doctor_name }}</div></div>
+    {% if v.diagnosis %}<div class="form-group"><div class="form-label">Diagnosis</div><div style="background:var(--glass);border:1px solid var(--border);border-radius:var(--r-sm);padding:.75rem;color:var(--text1)">{{ v.diagnosis }}</div></div>{% endif %}
+    {% if v.prescription %}<div class="form-group"><div class="form-label"><i class="fa fa-pills"></i> Prescription</div><div style="background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);border-radius:var(--r-sm);padding:.75rem;color:#6ee7b7">{{ v.prescription }}</div></div>{% endif %}
+    {% if v.notes %}<div class="form-group"><div class="form-label">Doctor Notes</div><div style="background:var(--glass);border:1px solid var(--border);border-radius:var(--r-sm);padding:.75rem;color:var(--text2)">{{ v.notes }}</div></div>{% endif %}
+  </div>
+</div>
+{% endfor %}
+
+<script>
+function openVisit(id){document.getElementById(id).style.display='flex'}
+function closeVisit(id){document.getElementById(id).style.display='none'}
+document.querySelectorAll('.modal-overlay').forEach(o=>{o.addEventListener('click',e=>{if(e.target===o)o.style.display='none'})});
+setTimeout(()=>{document.querySelectorAll('.flash').forEach(f=>{f.style.opacity='0';setTimeout(()=>f.remove(),400)})},4000);
+const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible')})},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

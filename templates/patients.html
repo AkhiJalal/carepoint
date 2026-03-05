@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Patients{% endblock %}
+{% block page_title %}Patients{% endblock %}
+
+{% block topbar_actions %}
+<a href="/add_patient" class="btn btn-primary btn-sm"><i class="fa fa-user-plus"></i> Register Patient</a>
+{% endblock %}
+
+{% block content %}
+<div class="pg-hdr fade-up">
+  <div>
+    <h2>All Patients</h2>
+    <p>{{ patients|length }} patient{{ 's' if patients|length != 1 else '' }} registered</p>
+  </div>
+  <div class="pg-actions">
+    <form method="GET" style="display:flex;gap:.5rem">
+      <div class="search-box">
+        <i class="fa fa-search"></i>
+        <input class="form-control" name="search" value="{{ search }}" placeholder="Search name or ID…">
+      </div>
+      <button type="submit" class="btn btn-glass btn-sm">Search</button>
+      {% if search %}<a href="/patients" class="btn btn-glass btn-sm"><i class="fa fa-times"></i></a>{% endif %}
+    </form>
+  </div>
+</div>
+
+<div class="table-card fade-up d1">
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>Patient</th><th>Hospital ID</th><th>Age</th><th>Gender</th>
+        <th>Contact</th><th>Blood</th><th>Registered</th><th>Actions</th>
+      </tr></thead>
+      <tbody>
+      {% for patient in patients %}
+      <tr>
+        <td>
+          <div class="av-row">
+            <div class="av av-blue">{{ patient.name[0].upper() }}</div>
+            <div>
+              <div class="td-bold">{{ patient.name }}</div>
+              {% if patient.allergies %}<div style="font-size:.72rem;color:var(--red)"><i class="fa fa-exclamation-triangle"></i> Allergies</div>{% endif %}
+            </div>
+          </div>
+        </td>
+        <td><span class="td-mono badge badge-gray">{{ patient.hospital_id }}</span></td>
+        <td>{{ patient.age or '—' }}</td>
+        <td>
+          {% if patient.gender == 'Male' %}<span class="badge badge-blue">Male</span>
+          {% elif patient.gender == 'Female' %}<span class="badge badge-purple">Female</span>
+          {% else %}<span class="badge badge-gray">—</span>{% endif %}
+        </td>
+        <td style="font-size:.82rem">{{ patient.contact or '—' }}</td>
+        <td>{% if patient.blood_group %}<span class="badge badge-red">{{ patient.blood_group }}</span>{% else %}—{% endif %}</td>
+        <td style="font-size:.78rem;color:var(--text3)">
+          {{ patient.created_at.strftime('%Y-%m-%d') if patient.created_at else '—' }}
+        </td>
+        <td>
+          <div style="display:flex;gap:.4rem;align-items:center">
+            <a href="/patients/{{ patient.id }}" class="btn btn-glass btn-icon btn-sm" title="View"><i class="fa fa-eye"></i></a>
+            <a href="/edit_patient/{{ patient.id }}" class="btn btn-glass btn-icon btn-sm" title="Edit"><i class="fa fa-edit"></i></a>
+            <button class="btn btn-glass btn-icon btn-sm" title="More"
+              onclick="showMenu(event, 'pm{{ patient.id }}')">
+              <i class="fa fa-ellipsis-v"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+      {% if not patients %}
+      <tr><td colspan="8">
+        <div class="empty">
+          <div class="empty-icon"><i class="fa fa-users"></i></div>
+          <h3>No patients found</h3>
+          <p>{% if search %}No results for "{{ search }}"{% else %}Register your first patient{% endif %}</p>
+        </div>
+      </td></tr>
+      {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ONE menu per patient, rendered outside the table entirely -->
+{% for patient in patients %}
+<div id="pm{{ patient.id }}" class="cp-menu">
+  <a href="/patients/{{ patient.id }}"><i class="fa fa-eye"></i> View Profile</a>
+  <a href="/edit_patient/{{ patient.id }}"><i class="fa fa-edit"></i> Edit Details</a>
+  <a href="/add_visit/{{ patient.id }}"><i class="fa fa-notes-medical"></i> Add Visit</a>
+  <hr>
+  <a href="/delete_patient/{{ patient.id }}" class="del"
+     onclick="return confirm('Delete {{ patient.name }}? This cannot be undone.')">
+    <i class="fa fa-trash"></i> Delete Patient
+  </a>
+</div>
+{% endfor %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showMenu(e, id) {
+  e.stopPropagation();
+  var btn = e.currentTarget;
+  var menu = document.getElementById(id);
+  var isOpen = menu.classList.contains('visible');
+
+  // close all open menus
+  document.querySelectorAll('.cp-menu.visible').forEach(function(m) {
+    m.classList.remove('visible');
+  });
+
+  if (!isOpen) {
+    var rect = btn.getBoundingClientRect();
+    menu.style.top  = (rect.bottom + 6) + 'px';
+    menu.style.left = Math.min(rect.left, window.innerWidth - 210) + 'px';
+    menu.classList.add('visible');
+  }
+}
+
+document.addEventListener('click', function() {
+  document.querySelectorAll('.cp-menu.visible').forEach(function(m) {
+    m.classList.remove('visible');
+  });
+});
+</script>
+{% endblock %}

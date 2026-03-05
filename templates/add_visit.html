@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Add Visit{% endblock %}
+{% block page_title %}Record Visit{% endblock %}
+{% block content %}
+<div class="form-page fade-up">
+  <div class="pg-hdr">
+    <div><h2>Record Visit — {{ patient.name }}</h2><p>Add a clinical visit record</p></div>
+    <a href="/patients/{{ patient.id }}" class="btn btn-glass btn-sm"><i class="fa fa-arrow-left"></i> Back</a>
+  </div>
+  <form method="POST">
+    <div class="form-card">
+      <div class="form-section-hdr"><i class="fa fa-notes-medical"></i> Visit Details</div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Doctor *</label>
+          <select class="form-control" name="doctor_id" required>
+            <option value="">Select doctor</option>
+            {% for d in doctors %}<option value="{{ d.id }}">Dr. {{ d.name }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Visit Date *</label>
+          <input class="form-control" type="date" name="visit_date" required value="{{ now }}">
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label class="form-label">Diagnosis</label>
+          <textarea class="form-control" name="diagnosis" placeholder="Patient diagnosis…"></textarea>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label class="form-label"><i class="fa fa-pills"></i> Prescription</label>
+          <textarea class="form-control" name="prescription" placeholder="Medications prescribed…"></textarea>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label class="form-label">Doctor Notes <span style="color:var(--text3);font-weight:400">(visible to patient)</span></label>
+          <textarea class="form-control" name="notes" placeholder="Additional notes for the patient…"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Save Visit</button>
+      <a href="/patients/{{ patient.id }}" class="btn btn-glass">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

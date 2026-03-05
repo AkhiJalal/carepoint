@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block topbar_actions %}
+<a href="/add_patient" class="btn btn-primary btn-sm"><i class="fa fa-user-plus"></i> New Patient</a>
+{% endblock %}
+
+{% block content %}
+<!-- STATS -->
+<div class="stats-row fade-up">
+  <div class="stat-card c-blue">
+    <div class="stat-icon ic-blue"><i class="fa fa-users"></i></div>
+    <div class="stat-num">{{ patients_count }}</div>
+    <div class="stat-lbl">Total Patients</div>
+  </div>
+  <div class="stat-card c-green">
+    <div class="stat-icon ic-green"><i class="fa fa-user-md"></i></div>
+    <div class="stat-num">{{ doctors_count }}</div>
+    <div class="stat-lbl">Doctors</div>
+  </div>
+  <div class="stat-card c-purple">
+    <div class="stat-icon ic-purple"><i class="fa fa-user-nurse"></i></div>
+    <div class="stat-num">{{ nurses_count }}</div>
+    <div class="stat-lbl">Nurses</div>
+  </div>
+  <div class="stat-card c-amber">
+    <div class="stat-icon ic-amber"><i class="fa fa-calendar-check"></i></div>
+    <div class="stat-num">{{ appointments_count }}</div>
+    <div class="stat-lbl">Appointments Today</div>
+  </div>
+</div>
+
+<!-- TWO COLUMN -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem" class="fade-up d1">
+
+  <!-- Recent Patients -->
+  <div class="table-card">
+    <div class="table-top">
+      <span class="table-title"><i class="fa fa-users" style="color:var(--blue-bright);margin-right:.4rem"></i> Recent Patients</span>
+      <a href="/patients" class="btn btn-glass btn-sm">View All</a>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Patient</th><th>ID</th><th>Gender</th>
+        </tr></thead>
+        <tbody>
+        {% for p in recent_patients %}
+        <tr onclick="window.location='/patients/{{ p.id }}'" style="cursor:pointer">
+          <td>
+            <div class="av-row">
+              <div class="av av-blue">{{ p.name[0].upper() }}</div>
+              <span class="td-bold">{{ p.name }}</span>
+            </div>
+          </td>
+          <td><span class="td-mono badge badge-gray">{{ p.hospital_id }}</span></td>
+          <td>
+            {% if p.gender == 'Male' %}<span class="badge badge-blue">M</span>
+            {% elif p.gender == 'Female' %}<span class="badge badge-purple">F</span>
+            {% else %}<span class="badge badge-gray">—</span>{% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="3"><div class="empty"><div class="empty-icon"><i class="fa fa-user-plus"></i></div><p>No patients yet</p></div></td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Upcoming Appointments -->
+  <div class="table-card">
+    <div class="table-top">
+      <span class="table-title"><i class="fa fa-calendar" style="color:var(--green);margin-right:.4rem"></i> Upcoming</span>
+      <a href="/appointments" class="btn btn-glass btn-sm">View All</a>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Patient</th><th>Doctor</th><th>Date</th><th>Status</th>
+        </tr></thead>
+        <tbody>
+        {% for a in upcoming %}
+        <tr>
+          <td class="td-bold">{{ a.patient_name }}</td>
+          <td class="text-muted" style="font-size:.8rem">{{ a.doctor_name }}</td>
+          <td>
+            <div style="font-size:.8rem;color:var(--blue-bright)">{{ a.date }}</div>
+            <div style="font-size:.72rem;color:var(--text3)">{{ a.time }}</div>
+          </td>
+          <td>
+            {% if a.status == 'scheduled' %}<span class="badge badge-blue">Scheduled</span>
+            {% elif a.status == 'completed' %}<span class="badge badge-green">Done</span>
+            {% else %}<span class="badge badge-red">{{ a.status }}</span>{% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4"><div class="empty"><div class="empty-icon"><i class="fa fa-calendar-check"></i></div><p>No upcoming appointments</p></div></td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem" class="fade-up d2">
+  <a href="/add_patient" class="glass-card" style="text-align:center;text-decoration:none;padding:1.25rem">
+    <div class="stat-icon ic-blue" style="margin:0 auto .7rem"><i class="fa fa-user-plus"></i></div>
+    <div style="font-weight:700;font-size:.88rem;color:var(--text1)">Register Patient</div>
+  </a>
+  <a href="/appointments" class="glass-card" style="text-align:center;text-decoration:none;padding:1.25rem">
+    <div class="stat-icon ic-green" style="margin:0 auto .7rem"><i class="fa fa-calendar-plus"></i></div>
+    <div style="font-weight:700;font-size:.88rem;color:var(--text1)">Book Appointment</div>
+  </a>
+  <a href="/staff" class="glass-card" style="text-align:center;text-decoration:none;padding:1.25rem">
+    <div class="stat-icon ic-purple" style="margin:0 auto .7rem"><i class="fa fa-users-cog"></i></div>
+    <div style="font-weight:700;font-size:.88rem;color:var(--text1)">Manage Staff</div>
+  </a>
+  <a href="/availability" class="glass-card" style="text-align:center;text-decoration:none;padding:1.25rem">
+    <div class="stat-icon ic-amber" style="margin:0 auto .7rem"><i class="fa fa-clock"></i></div>
+    <div style="font-weight:700;font-size:.88rem;color:var(--text1)">Set Availability</div>
+  </a>
+  <a href="/pharmacy" class="glass-card" style="text-align:center;text-decoration:none;padding:1.25rem">
+    <div class="stat-icon ic-teal" style="margin:0 auto .7rem"><i class="fa fa-pills"></i></div>
+    <div style="font-weight:700;font-size:.88rem;color:var(--text1)">Pharmacy</div>
+  </a>
+</div>
+{% endblock %}

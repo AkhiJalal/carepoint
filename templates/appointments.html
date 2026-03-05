@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Appointments{% endblock %}
+{% block page_title %}Appointments{% endblock %}
+{% block topbar_actions %}
+<button class="btn btn-primary btn-sm" onclick="openModal('addApptModal')"><i class="fa fa-calendar-plus"></i> Book Appointment</button>
+{% endblock %}
+{% block content %}
+<div class="pg-hdr fade-up">
+  <div><h2>Appointments</h2><p>Manage all patient appointments</p></div>
+</div>
+
+<div class="table-card fade-up d1">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Patient</th><th>Doctor</th><th>Date</th><th>Time</th><th>Notes</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+      {% for a in appointments %}
+      <tr>
+        <td><div class="av-row"><div class="av av-blue">{{ a.patient_name[0].upper() }}</div><div><div class="td-bold">{{ a.patient_name }}</div><div class="td-mono" style="font-size:.7rem;color:var(--text3)">{{ a.hospital_id }}</div></div></div></td>
+        <td style="font-size:.84rem">{{ a.doctor_name }}</td>
+        <td><span style="color:var(--blue-bright);font-size:.84rem">{{ a.date }}</span></td>
+        <td style="font-size:.84rem">{{ a.time }}</td>
+        <td style="font-size:.8rem;color:var(--text3);max-width:120px" class="truncate">{{ a.notes or '—' }}</td>
+        <td>
+          {% if a.status=='scheduled' %}<span class="badge badge-blue">Scheduled</span>
+          {% elif a.status=='completed' %}<span class="badge badge-green">Completed</span>
+          {% elif a.status=='cancelled' %}<span class="badge badge-red">Cancelled</span>
+          {% else %}<span class="badge badge-gray">{{ a.status }}</span>{% endif %}
+        </td>
+        <td>
+          <div style="display:flex;gap:.35rem">
+            <a href="/appointment/status/{{ a.id }}/completed" class="btn btn-success btn-icon btn-sm" title="Mark complete"><i class="fa fa-check"></i></a>
+            <a href="/appointment/status/{{ a.id }}/cancelled" class="btn btn-danger btn-icon btn-sm" title="Cancel"><i class="fa fa-times"></i></a>
+          </div>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7"><div class="empty"><div class="empty-icon"><i class="fa fa-calendar"></i></div><h3>No appointments</h3><p>Book the first appointment</p></div></td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Add Appointment Modal -->
+<div class="modal-overlay" id="addApptModal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <span class="modal-ttl"><i class="fa fa-calendar-plus" style="color:var(--blue-bright);margin-right:.5rem"></i> Book Appointment</span>
+      <button class="modal-x" onclick="closeModal('addApptModal')"><i class="fa fa-times"></i></button>
+    </div>
+    <form method="POST" action="/add_appointment">
+      <div class="form-group">
+        <label class="form-label">Patient *</label>
+        <select class="form-control" name="patient_id" required>
+          <option value="">Select patient</option>
+          {% for p in patients %}<option value="{{ p.id }}">{{ p.name }} ({{ p.hospital_id }})</option>{% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Doctor *</label>
+        <select class="form-control" name="doctor_id" required>
+          <option value="">Select doctor</option>
+          {% for d in doctors %}<option value="{{ d.id }}">Dr. {{ d.name }}{% if d.specialization %} — {{ d.specialization }}{% endif %}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Date *</label>
+          <input class="form-control" type="date" name="date" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Time *</label>
+          <input class="form-control" type="time" name="time" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea class="form-control" name="notes" rows="2" placeholder="Reason for visit…"></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary"><i class="fa fa-calendar-check"></i> Book</button>
+        <button type="button" class="btn btn-glass" onclick="closeModal('addApptModal')">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

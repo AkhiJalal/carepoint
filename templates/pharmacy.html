@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+{% block title %}Pharmacy{% endblock %}
+{% block page_title %}Pharmacy{% endblock %}
+
+{% block topbar_actions %}
+<button class="btn btn-primary btn-sm" onclick="openModal('addDrugModal')">
+  <i class="fa fa-plus"></i> Add Drug
+</button>
+{% endblock %}
+
+{% block content %}
+
+<!-- STATS -->
+<div class="stats-row fade-up">
+  <div class="stat-card c-blue">
+    <div class="stat-icon ic-blue"><i class="fa fa-pills"></i></div>
+    <div class="stat-num">{{ drugs|length }}</div>
+    <div class="stat-lbl">Drug Types</div>
+  </div>
+  <div class="stat-card c-amber">
+    <div class="stat-icon ic-amber"><i class="fa fa-clock"></i></div>
+    <div class="stat-num">{{ pending|length }}</div>
+    <div class="stat-lbl">Pending Prescriptions</div>
+  </div>
+  <div class="stat-card c-green">
+    <div class="stat-icon ic-green"><i class="fa fa-check-circle"></i></div>
+    <div class="stat-num">{{ dispensed|length }}</div>
+    <div class="stat-lbl">Dispensed Today</div>
+  </div>
+  <div class="stat-card c-red" style="--c:var(--red)">
+    <div class="stat-icon ic-red"><i class="fa fa-exclamation-triangle"></i></div>
+    <div class="stat-num">{{ drugs|selectattr('quantity','lt',10)|list|length }}</div>
+    <div class="stat-lbl">Low Stock Alerts</div>
+  </div>
+</div>
+
+<!-- TWO COLUMNS -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem" class="fade-up d1">
+
+  <!-- Drug Inventory -->
+  <div class="table-card">
+    <div class="table-top">
+      <span class="table-title"><i class="fa fa-capsules" style="color:var(--blue-bright);margin-right:.4rem"></i> Drug Inventory</span>
+      <button class="btn btn-primary btn-sm" onclick="openModal('addDrugModal')">
+        <i class="fa fa-plus"></i> Add
+      </button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Drug Name</th><th>Stock</th><th>Unit</th><th>Price</th><th>Actions</th></tr></thead>
+        <tbody>
+        {% for d in drugs %}
+        <tr>
+          <td class="td-bold">{{ d.drug_name }}</td>
+          <td>
+            {% if d.quantity < 10 %}
+              <span class="badge badge-red"><i class="fa fa-exclamation-triangle"></i> {{ d.quantity }}</span>
+            {% elif d.quantity < 50 %}
+              <span class="badge badge-amber">{{ d.quantity }}</span>
+            {% else %}
+              <span class="badge badge-green">{{ d.quantity }}</span>
+            {% endif %}
+          </td>
+          <td style="font-size:.82rem;color:var(--text2)">{{ d.unit }}</td>
+          <td style="color:var(--blue-bright);font-size:.84rem">GHS {{ '%.2f'|format(d.price|float) }}</td>
+          <td>
+            <div style="display:flex;gap:.35rem">
+              <button data-dd-toggle="drug-dd-{{ d.id }}" class="btn btn-glass btn-icon btn-sm">
+                <i class="fa fa-ellipsis-v"></i>
+              </button>
+              <div class="dd-menu" id="drug-dd-{{ d.id }}">
+                <div class="dd-item" onclick="openRestock({{ d.id }}, '{{ d.drug_name }}')">
+                  <i class="fa fa-plus-circle"></i> Restock
+                </div>
+                <div class="dd-sep"></div>
+                <a href="/pharmacy/delete_drug/{{ d.id }}" class="dd-item danger"
+                   onclick="return confirm('Remove {{ d.drug_name }}?')">
+                  <i class="fa fa-trash"></i> Remove
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5">
+          <div class="empty">
+            <div class="empty-icon"><i class="fa fa-pills"></i></div>
+            <h3>No drugs in inventory</h3>
+            <p>Add drugs to start tracking stock</p>
+          </div>
+        </td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Pending Prescriptions -->
+  <div class="table-card">
+    <div class="table-top">
+      <span class="table-title"><i class="fa fa-file-prescription" style="color:var(--amber);margin-right:.4rem"></i> Pending Prescriptions</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Patient</th><th>Drug</th><th>Dosage</th><th>Action</th></tr></thead>
+        <tbody>
+        {% for pr in pending %}
+        <tr>
+          <td>
+            <div class="av-row">
+              <div class="av av-blue av-sm">{{ pr.patient_name[0].upper() }}</div>
+              <div>
+                <div class="td-bold" style="font-size:.82rem">{{ pr.patient_name }}</div>
+                <div class="td-mono" style="font-size:.7rem;color:var(--text3)">{{ pr.hospital_id }}</div>
+              </div>
+            </div>
+          </td>
+          <td style="font-size:.84rem;color:var(--text1)">{{ pr.drug_name }}</td>
+          <td style="font-size:.8rem;color:var(--text2)">{{ pr.dosage or '—' }}</td>
+          <td>
+            <a href="/pharmacy/dispense/{{ pr.id }}" class="btn btn-success btn-sm">
+              <i class="fa fa-check"></i> Dispense
+            </a>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4">
+          <div class="empty" style="padding:1.5rem">
+            <div class="empty-icon"><i class="fa fa-check-circle"></i></div>
+            <p>No pending prescriptions</p>
+          </div>
+        </td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Dispensing History -->
+<div class="table-card fade-up d2">
+  <div class="table-top">
+    <span class="table-title"><i class="fa fa-history" style="color:var(--green);margin-right:.4rem"></i> Recent Dispensing History</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Patient</th><th>Drug</th><th>Dosage</th><th>Dispensed By</th><th>Time</th></tr></thead>
+      <tbody>
+      {% for d in dispensed %}
+      <tr>
+        <td class="td-bold">{{ d.patient_name }}</td>
+        <td style="font-size:.84rem">{{ d.drug_name }}</td>
+        <td style="font-size:.8rem;color:var(--text2)">{{ d.dosage or '—' }}</td>
+        <td style="font-size:.82rem;color:var(--text2)">{{ d.dispensed_by_name or '—' }}</td>
+        <td style="font-size:.78rem;color:var(--text3)">
+          {{ d.dispensed_at.strftime('%b %d, %H:%M') if d.dispensed_at else '—' }}
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5">
+        <div class="empty"><p>No dispensing history yet</p></div>
+      </td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ADD DRUG MODAL -->
+<div class="modal-overlay" id="addDrugModal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <span class="modal-ttl"><i class="fa fa-pills" style="color:var(--blue-bright);margin-right:.5rem"></i> Add Drug to Inventory</span>
+      <button class="modal-x" onclick="closeModal('addDrugModal')"><i class="fa fa-times"></i></button>
+    </div>
+    <form method="POST" action="/pharmacy/add_drug">
+      <div class="form-group">
+        <label class="form-label">Drug Name *</label>
+        <input class="form-control" name="drug_name" required placeholder="e.g. Paracetamol 500mg">
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Initial Quantity</label>
+          <input class="form-control" type="number" name="quantity" value="0" min="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Unit</label>
+          <select class="form-control" name="unit">
+            <option>tablets</option><option>capsules</option><option>bottles</option>
+            <option>vials</option><option>sachets</option><option>tubes</option>
+            <option>injections</option><option>syrup (ml)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Price (GHS)</label>
+          <input class="form-control" type="number" name="price" step="0.01" value="0.00" min="0">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary"><i class="fa fa-plus"></i> Add Drug</button>
+        <button type="button" class="btn btn-glass" onclick="closeModal('addDrugModal')">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- RESTOCK MODAL -->
+<div class="modal-overlay" id="restockModal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <span class="modal-ttl"><i class="fa fa-plus-circle" style="color:var(--green);margin-right:.5rem"></i> Restock Drug</span>
+      <button class="modal-x" onclick="closeModal('restockModal')"><i class="fa fa-times"></i></button>
+    </div>
+    <p id="restockDrugName" style="color:var(--blue-bright);font-weight:700;margin-bottom:1.25rem;font-size:1rem"></p>
+    <form method="POST" id="restockForm">
+      <div class="form-group">
+        <label class="form-label">Quantity to Add *</label>
+        <input class="form-control" type="number" name="quantity" required min="1" placeholder="e.g. 100">
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-success"><i class="fa fa-plus"></i> Add Stock</button>
+        <button type="button" class="btn btn-glass" onclick="closeModal('restockModal')">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function openRestock(id, name) {
+  document.getElementById('restockDrugName').textContent = name;
+  document.getElementById('restockForm').action = '/pharmacy/restock/' + id;
+  openModal('restockModal');
+}
+</script>
+{% endblock %}
